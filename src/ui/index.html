@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SessionStats</title>
+<!-- Everything is local: opened as file://, no server and no Internet access. -->
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="titlebar">
+  <div id="tb-spacer"></div>
+  <div id="tb-title">SessionStats · Studio</div>
+  <div id="tb-buttons">
+    <div id="btn-min"   class="titlebar-btn btn-min"   title="Minimize">−</div>
+    <div id="btn-max"   class="titlebar-btn btn-max"   title="Fullscreen">⤢</div>
+    <div id="btn-close" class="titlebar-btn btn-close" title="Close">✕</div>
+  </div>
+</div>
+
+<div class="resize" id="resize-n"></div><div class="resize" id="resize-s"></div>
+<div class="resize" id="resize-e"></div><div class="resize" id="resize-w"></div>
+<div class="resize" id="resize-nw"></div><div class="resize" id="resize-ne"></div>
+<div class="resize" id="resize-sw"></div><div class="resize" id="resize-se"></div>
+
+<div id="app">
+  <div id="ddOverlay" data-act="closeDropdowns"></div>
+
+  <!-- LEFT -->
+  <div id="left">
+    <div class="brand-row">
+      <div class="brand-logo">◢</div>
+      <div class="brand-name">SessionStats</div>
+      <div class="brand-badge">STUDIO</div>
+      <div id="langSwitch" class="lang-switch"></div>
+    </div>
+
+    <div class="file-card" data-act="pickActivity">
+      <div class="file-thumb">
+        <svg viewBox="0 0 290 360" style="width:30px;height:38px" fill="none" stroke="#fc4c02" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"><polyline points="22,24 46,46 110,122 172,192 216,232 246,236"></polyline><polyline points="35,226 90,216 141,221 197,257 273,352"></polyline></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="file-name" id="fileName"></div>
+        <div class="file-meta" id="fileMeta"></div>
+      </div>
+      <div class="file-change" id="fileChangeLabel"></div>
+    </div>
+
+    <div class="section-title" id="sectionFieldsTitle"></div>
+    <div id="fieldSlots"></div>
+    <div class="chips" id="addChips"></div>
+
+    <div class="section-title" id="sectionLineColorTitle"></div>
+    <div class="swatch-row">
+      <div id="colorSwatches" style="display:contents"></div>
+      <label class="custom-color"><input type="color" id="routeColor"></label>
+    </div>
+
+    <div class="section-title" id="sectionTextColorTitle"></div>
+    <div class="swatch-row">
+      <div id="textSwatches" style="display:contents"></div>
+      <label class="custom-color"><input type="color" id="textColor"></label>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div id="right">
+    <div class="stage-head">
+      <span class="stage-label" id="stageLabel"></span>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <span class="bg-label" id="bgLabel"></span>
+        <div id="bgSwatches" style="display:contents"></div>
+      </div>
+    </div>
+    <div id="stage">
+      <div id="previewFrame"><canvas id="preview"></canvas></div>
+    </div>
+    <div class="stage-foot">
+      <div class="btn-primary" data-act="exportPng">⬇  <span id="exportBtnLabel"></span></div>
+      <div class="out-info">1080×1706<br>PNG</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="card.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
