@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SessionStats — turn a GPX or FIT workout into a transparent stats image. Runs in your browser, nothing is uploaded." />
+    <title>SessionStats</title>
+    <link rel="stylesheet" href="sessionstats.css" />
+    <style>
+      /* Base styles the app takes from MiOS (style.css), so it can run on its own page. */
+      :root {
+        --accent: #fc4c02;
+        --text: #1c1c22;
+        --text-muted: #6b6b78;
+        --surface-strong: #ffffff;
+        --surface-sunken: #f1f1f5;
+        --hairline: rgba(0, 0, 0, 0.08);
+        --radius: 10px;
+        --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        background: #e9e9ee;
+        color: var(--text);
+        font-family: var(--font-ui);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button {
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .page-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px 0;
+        font-size: 13px;
+      }
+
+      .page-head h1 {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .page-head a {
+        margin-left: auto;
+        color: var(--text-muted);
+      }
+
+      #sessionstats {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+      }
+
+      .window-body {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        font-size: 14.5px;
+        line-height: 1.55;
+      }
+
+      .window-body--pane {
+        display: flex;
+        padding: 8px;
+      }
+
+      .pane {
+        flex: 1;
+        min-width: 0;
+        overflow: auto;
+        padding: 14px;
+        border-radius: var(--radius);
+        background: var(--surface-strong);
+      }
+
+      .segmented {
+        flex-shrink: 0;
+        display: flex;
+        gap: 2px;
+        padding: 3px;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.06);
+      }
+
+      .segmented button {
+        flex: 1;
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        color: var(--text-muted);
+      }
+
+      .segmented--small {
+        flex: 0 0 auto;
+        padding: 2px;
+      }
+
+      .segmented--small button {
+        flex: 0 0 auto;
+        padding: 3px 12px;
+        font-size: 12.5px;
+      }
+
+      .segmented--small button[aria-checked="true"] {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .segmented--small button[aria-checked="true"]::before {
+        content: "✓ ";
+      }
+
+      .btn {
+        padding: 7px 14px;
+        border: 1px solid rgba(0, 0, 0, 0.14);
+        border-radius: 8px;
+        background: var(--surface-strong);
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+
+      .btn:hover {
+        background: #f3f3f7;
+      }
+
+      .btn--primary {
+        border-color: transparent;
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .btn--small {
+        padding: 4px 10px;
+        font-size: 12.5px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="page-head">
+      <h1>SessionStats</h1>
+      <a href="https://github.com/Er0ga/SessionStats">Source &amp; Windows app</a>
+    </header>
+
+    <main id="sessionstats">
+      <div class="window-body window-body--pane ss-body">
+        <div class="ss">
+          <div class="pane ss-controls">
+            <div class="ss-file">
+              <div class="ss-file-info">
+                <strong id="ssFileName"></strong>
+                <span id="ssFileMeta"></span>
+              </div>
+              <button type="button" class="btn btn--small" id="ssOpen">Open file…</button>
+              <input type="file" id="ssFileInput" accept=".gpx,.fit" hidden />
+            </div>
+            <p class="ss-error" id="ssError" hidden></p>
+            <p class="ss-note">
+              Drop a .gpx or .fit file here. Files are read in your browser and never uploaded.
+            </p>
+
+            <h2 class="ss-title">Fields</h2>
+            <div class="ss-fields" id="ssFields"></div>
+
+            <h2 class="ss-title" id="ssRouteLabel">Line color</h2>
+            <div class="ss-swatches" id="ssRouteColors" role="group" aria-labelledby="ssRouteLabel"></div>
+
+            <h2 class="ss-title" id="ssTextLabel">Text color</h2>
+            <div class="ss-swatches" id="ssTextColors" role="group" aria-labelledby="ssTextLabel"></div>
+
+            <h2 class="ss-title" id="ssLangLabel">Card language</h2>
+            <div class="segmented segmented--small" role="radiogroup" aria-labelledby="ssLangLabel">
+              <button type="button" role="radio" data-card-lang="en" aria-checked="true">English</button>
+              <button type="button" role="radio" data-card-lang="es" aria-checked="false">Spanish</button>
+            </div>
+          </div>
+
+          <div class="ss-stage">
+            <div class="ss-stage-head">
+              <span id="ssBgLabel">Preview</span>
+              <div class="ss-backgrounds" id="ssBackgrounds" role="group" aria-labelledby="ssBgLabel"></div>
+            </div>
+            <div class="ss-frame">
+              <canvas id="ssPreview" role="img" aria-label="Stats card preview"></canvas>
+            </div>
+            <div class="ss-stage-foot">
+              <button type="button" class="btn btn--primary ss-export" id="ssExport">Download PNG</button>
+              <span class="ss-out">1080×1706<br />transparent</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      /* Helpers sessionstats.js expects from MiOS (script.js). */
+      const $ = (selector, root = document) => root.querySelector(selector);
+      const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+      /* localStorage can throw (private mode, blocked site data), so every access is guarded */
+      const store = {
+        get(key, fallback) {
+          try {
+            const raw = localStorage.getItem("sessionstats." + key);
+            return raw === null ? fallback : JSON.parse(raw);
+          } catch (e) {
+            return fallback;
+          }
+        },
+        set(key, value) {
+          try {
+            localStorage.setItem("sessionstats." + key, JSON.stringify(value));
+          } catch (e) {}
+        },
+      };
+
+      function escapeHtml(text) {
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+    </script>
+    <script src="card.js"></script>
+    <script src="sessionstats.js"></script>
+    <script>
+      startSessionStats();
+    </script>
+  </body>
+</html>
