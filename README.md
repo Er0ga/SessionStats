@@ -24,7 +24,7 @@ Each release lists the SHA-256 hash of the file so you can check it.
 Requires Windows 10/11 with the Microsoft Edge WebView2 runtime (already included in Windows 11).
 
 
-![SessionStats](docs/screenshot.png)
+![SessionStats](media/screenshot.png)
 
 ## Run from source
 
