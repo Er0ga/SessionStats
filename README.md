@@ -10,6 +10,10 @@ Turn a GPX or FIT workout into a stats image with a transparent background, read
 - Export a **transparent PNG** (1080×1706) with a live preview.
 - Interface available in **English** (default) and **Spanish**, switchable from the top-left corner.
 
+## Use it in the browser
+
+The same tool runs online at **https://er0ga.github.io/SessionStats/**: files are read in the browser and never uploaded. Its code is in [`docs/`](docs). To try it, use [`media/sample.gpx`](media/sample.gpx).
+
 ## Download
 
 Get `SessionStats.exe` from the [Releases](../../releases) page and run it. No installation needed.
